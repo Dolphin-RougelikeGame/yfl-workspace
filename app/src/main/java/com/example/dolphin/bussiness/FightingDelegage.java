@@ -1,5 +1,6 @@
 package com.example.dolphin.bussiness;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -28,6 +29,8 @@ import java.util.concurrent.TimeUnit;
 public class FightingDelegage implements ITankHitHandler, IMissileHitHandler,
         SteeringWheelView.IDirectionListener, FireButton.IFireListener{
     private static final String TAG = "FightingDelegage";
+
+    Context context;
 
     /**
      * canvas宽度和高度
@@ -77,7 +80,8 @@ public class FightingDelegage implements ITankHitHandler, IMissileHitHandler,
     private Object driveLock = new Object();
     private ExecutorService executorService = Executors.newFixedThreadPool(4);
 
-    public FightingDelegage(int width, int height) {
+    public FightingDelegage(int width, int height, Context context) {
+        this.context = context;
         this.mWidth = width;
         this.mHeight = height;
         mBufferBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
@@ -98,6 +102,7 @@ public class FightingDelegage implements ITankHitHandler, IMissileHitHandler,
         executorService.submit(new BufferDrawer());
         executorService.submit(new MissileDriver());
         executorService.submit(new TankDriver());
+
     }
 
     /**
@@ -119,7 +124,7 @@ public class FightingDelegage implements ITankHitHandler, IMissileHitHandler,
      * 显示到界面, 将缓冲区中画好的图形绘制到surfaceview的canvas中
      * @param canvas
      */
-    public void draw(Canvas canvas) {
+    public void draw(Canvas canvas, Context context) {
         if (null != canvas) {
             if (null != mBufferBitmap) {
                 try {
@@ -490,7 +495,7 @@ public class FightingDelegage implements ITankHitHandler, IMissileHitHandler,
 
         room = new Room(0.5f, 0.5f, 0.5f);
         roomSize = room.RoomSizeFeature();
-        UnbreakableWalls.add(new UnbreakableWall(mWidth / 2 - half_floorSize, mHeight / 2 - half_floorSize));
+        UnbreakableWalls.add(new UnbreakableWall(mWidth / 2 - half_floorSize, mHeight / 2 - half_floorSize, context));
         for (int i = 0; i < roomSize / 4; i += 1) {
             spreadUp++;
             if (spreadUp >= floorNum1) {
@@ -500,7 +505,7 @@ public class FightingDelegage implements ITankHitHandler, IMissileHitHandler,
             }
             TempWidth = mWidth / 2 + (float) (floorSize * spreadUp) - half_floorSize;
             TempHeight = mHeight / 2 + (float) (floorSize * spreadRight) - half_floorSize;
-            UnbreakableWalls.add(new UnbreakableWall(TempWidth, TempHeight));
+            UnbreakableWalls.add(new UnbreakableWall(TempWidth, TempHeight, context));
         }
         spreadUp = 0; spreadDown = 0; spreadLeft = 0; spreadRight = 0;
         for (int i = (int)roomSize / 4; i < 2 * roomSize / 4; i += 1) {
@@ -512,7 +517,7 @@ public class FightingDelegage implements ITankHitHandler, IMissileHitHandler,
             }
             TempWidth = mWidth / 2 - (float) (floorSize * spreadDown) - half_floorSize;
             TempHeight = mHeight / 2 + (float) (floorSize * spreadRight) - half_floorSize;
-            UnbreakableWalls.add(new UnbreakableWall(TempWidth, TempHeight));
+            UnbreakableWalls.add(new UnbreakableWall(TempWidth, TempHeight, context));
         }
         spreadUp = 0; spreadDown = 0; spreadLeft = 0; spreadRight = 0;
         for (int i = 2 * (int)roomSize / 4; i < 3 * roomSize / 4; i += 1) {
@@ -524,7 +529,7 @@ public class FightingDelegage implements ITankHitHandler, IMissileHitHandler,
             }
             TempWidth = mWidth / 2 - (float) (floorSize * spreadDown) - half_floorSize;
             TempHeight = mHeight / 2 - (float) (floorSize * spreadLeft) - half_floorSize;
-            UnbreakableWalls.add(new UnbreakableWall(TempWidth, TempHeight));
+            UnbreakableWalls.add(new UnbreakableWall(TempWidth, TempHeight, context));
         }
         spreadUp = 0; spreadDown = 0; spreadLeft = 0; spreadRight = 0;
         for (int i = 3 * (int)roomSize / 4; i < 4 * roomSize / 4; i += 1) {
@@ -536,7 +541,7 @@ public class FightingDelegage implements ITankHitHandler, IMissileHitHandler,
             }
             TempWidth = mWidth / 2 + (float) (floorSize * spreadUp) - half_floorSize;
             TempHeight = mHeight / 2 - (float) (floorSize * spreadLeft) - half_floorSize;
-            UnbreakableWalls.add(new UnbreakableWall(TempWidth, TempHeight));
+            UnbreakableWalls.add(new UnbreakableWall(TempWidth, TempHeight, context));
         }
 
         translateX = 0;

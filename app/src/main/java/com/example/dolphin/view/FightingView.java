@@ -47,7 +47,7 @@ public class FightingView extends SurfaceView {
     }
 
     private void initDelegate() {
-        fightingDelegate = new FightingDelegage(getWidth(), getHeight());
+        fightingDelegate = new FightingDelegage(getWidth(), getHeight(), getContext());
     }
 
     @Override
@@ -111,7 +111,7 @@ public class FightingView extends SurfaceView {
 
     private void render(Canvas canvas) {
         if (null != fightingDelegate && null != canvas) {
-            fightingDelegate.draw(canvas);
+            fightingDelegate.draw(canvas, getContext());
         }
 
     }
