@@ -54,24 +54,10 @@ public abstract class Wall extends MainActivity implements Shape {
         this.height = height;
     }
 
-//    public Bitmap getmBitmap() {
-////        Drawable vectorDrawable = context.getDrawable(R.drawable.box);
-////        mBitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(),
-////                vectorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-//
-////        Bitmap mBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.box);
-//        @SuppressLint("ResourceType")
-//        InputStream inputStream = getResources().openRawResource(R.drawable.box);
-//        BitmapFactory.Options options = new BitmapFactory.Options();
-//        Bitmap bitmap = BitmapFactory.decodeStream(inputStream, null, options);
-//        imageView.setImageBitmap(bitmap);
-//        return bitmap;
-//    }
-
     @Override
     public void draw(Canvas canvas) {
-        Rect rect = new Rect((int)(x), (int)(y), (int)(x + WIDTH), (int) (y + HEIGHT));
-        canvas.drawRect(rect, paint);
+//        Rect rect = new Rect((int)(x), (int)(y), (int)(x + WIDTH), (int) (y + HEIGHT));
+//        canvas.drawRect(rect, paint);
 //        canvas.drawBitmap(getmBitmap(), x, y, null);
     }
 
