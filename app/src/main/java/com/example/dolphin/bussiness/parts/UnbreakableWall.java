@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 
@@ -22,8 +21,8 @@ public class UnbreakableWall extends Wall {
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
 
-        float scaleWidth = ((float) 160) / width;
-        float scaleHeight = ((float) 160) / height;
+        float scaleWidth = ((float) 80) / width;
+        float scaleHeight = ((float) 80) / height;
         // 取得想要缩放的matrix参数
         Matrix matrix = new Matrix();
         matrix.postScale(scaleWidth, scaleHeight);
