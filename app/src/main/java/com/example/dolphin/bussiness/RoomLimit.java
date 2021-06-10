@@ -6,7 +6,7 @@ import com.example.dolphin.bussiness.parts.Shape;
 
 import java.util.Random;
 
-public class Room implements Shape {
+public class RoomLimit implements Shape {
     private float RoomSizeParam;
     private float RoomShapeParam;
     private float RoomRejectParam;
@@ -15,7 +15,7 @@ public class Room implements Shape {
     private int RoomReject;
     private Random random = new Random();
 
-    public Room(float RoomSizeParam, float RoomShapeParam, float RoomRejectParam) {
+    public RoomLimit(float RoomSizeParam, float RoomShapeParam, float RoomRejectParam) {
         this.RoomSizeParam = RoomSizeParam;
         this.RoomShapeParam = RoomShapeParam;
         this.RoomRejectParam = RoomRejectParam;
@@ -42,8 +42,8 @@ public class Room implements Shape {
     }
 
     public int RoomRejectFeature() {
-        int random3 = random.nextInt(60);
-        this.RoomReject = (int) (RoomRejectParam * (float) random3) + 120;
+        int random3 = random.nextInt(10);
+        this.RoomReject = (int) (RoomRejectParam * (float) random3) + 4;
         return RoomReject;
     }
 

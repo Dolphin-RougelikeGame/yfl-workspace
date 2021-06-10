@@ -14,7 +14,6 @@ import com.example.dolphin.bussiness.parts.Missile;
 import com.example.dolphin.bussiness.parts.OursTank;
 import com.example.dolphin.bussiness.parts.UnbreakableWall;
 import com.example.dolphin.bussiness.parts.Wall;
-import com.example.dolphin.bussiness.Room;
 import com.example.dolphin.view.FireButton;
 import com.example.dolphin.view.SteeringWheelView;
 
@@ -41,7 +40,7 @@ public class FightingDelegage implements ITankHitHandler, IMissileHitHandler,
     /**
      * Room类随机生成房间的
      */
-    private Room room;
+    private RoomLimit roomLimit;
     private float roomSize;
     private int roomShape;
     /**
@@ -102,7 +101,6 @@ public class FightingDelegage implements ITankHitHandler, IMissileHitHandler,
         executorService.submit(new BufferDrawer());
         executorService.submit(new MissileDriver());
         executorService.submit(new TankDriver());
-
     }
 
     /**
@@ -476,11 +474,41 @@ public class FightingDelegage implements ITankHitHandler, IMissileHitHandler,
         oursTank.fire();
     }
 
+    // 在四个不同的象限添加地板
+    public void addFloor(int floorSize, float center_x, float center_y, int floorNum, int direct) {
+        int spread_x = 0, spread_y = 0;
+        float TempWidth = center_x, TempHeight = center_y;
+        for (int i = 0; i < roomSize / 4; i += 1) {
+            spread_x++;
+            if (spread_x >= floorNum) {
+                spread_y += 1;
+                spread_x = 0;
+                if(roomLimit.RoomShapeFeature()) floorNum--;
+            }
+            switch (direct) {
+                case 1:
+                    TempWidth = center_x + (float) (floorSize * spread_x);
+                    TempHeight = center_y + (float) (floorSize * spread_y);
+                    break;
+                case 2:
+                    TempWidth = center_x - (float) (floorSize * spread_x);
+                    TempHeight = center_y + (float) (floorSize * spread_y);
+                    break;
+                case 3:
+                    TempWidth = center_x - (float) (floorSize * spread_x);
+                    TempHeight = center_y - (float) (floorSize * spread_y);
+                    break;
+                case 4:
+                    TempWidth = center_x + (float) (floorSize * spread_x);
+                    TempHeight = center_y - (float) (floorSize * spread_y);
+                default:
+                    break;
+            }
+            UnbreakableWalls.add(new UnbreakableWall(TempWidth, TempHeight, context));
+        }
+    }
+
     public void test() {
-        float TempWidth = 0, TempHeight = 0;
-        int floorSize = 160, half_floorSize = floorSize / 2;
-        int spreadUp = 0, spreadDown = 0, spreadLeft = 0, spreadRight = 0;
-        int floorNum1 = 7, floorNum2 = 7, floorNum3 = 7, floorNum4 = 7;
         enemyTanks.add(new EnemyTank(1000, 1000, mWidth, mHeight, Direction.LEFT));
         enemyTanks.add(new EnemyTank(1100, 1100, mWidth, mHeight, Direction.LEFT));
         enemyTanks.add(new EnemyTank(mWidth - 100, 100, mWidth, mHeight, Direction.UP));
@@ -493,55 +521,19 @@ public class FightingDelegage implements ITankHitHandler, IMissileHitHandler,
         oursTank = new OursTank(mWidth / 2, mHeight / 2, mWidth, mHeight, Direction.LEFT);
         oursTank.setHitHandler(this);
 
-        room = new Room(0.5f, 0.5f, 0.5f);
-        roomSize = room.RoomSizeFeature();
-        UnbreakableWalls.add(new UnbreakableWall(mWidth / 2 - half_floorSize, mHeight / 2 - half_floorSize, context));
-        for (int i = 0; i < roomSize / 4; i += 1) {
-            spreadUp++;
-            if (spreadUp >= floorNum1) {
-                spreadRight += 1;
-                spreadUp = 0;
-                if(room.RoomShapeFeature()) floorNum1--;
-            }
-            TempWidth = mWidth / 2 + (float) (floorSize * spreadUp) - half_floorSize;
-            TempHeight = mHeight / 2 + (float) (floorSize * spreadRight) - half_floorSize;
-            UnbreakableWalls.add(new UnbreakableWall(TempWidth, TempHeight, context));
-        }
-        spreadUp = 0; spreadDown = 0; spreadLeft = 0; spreadRight = 0;
-        for (int i = (int)roomSize / 4; i < 2 * roomSize / 4; i += 1) {
-            spreadDown++;
-            if (spreadDown >= floorNum2) {
-                spreadRight += 1;
-                spreadDown = 0;
-                if(room.RoomShapeFeature()) floorNum2--;
-            }
-            TempWidth = mWidth / 2 - (float) (floorSize * spreadDown) - half_floorSize;
-            TempHeight = mHeight / 2 + (float) (floorSize * spreadRight) - half_floorSize;
-            UnbreakableWalls.add(new UnbreakableWall(TempWidth, TempHeight, context));
-        }
-        spreadUp = 0; spreadDown = 0; spreadLeft = 0; spreadRight = 0;
-        for (int i = 2 * (int)roomSize / 4; i < 3 * roomSize / 4; i += 1) {
-            spreadDown++;
-            if (spreadDown >= floorNum3) {
-                spreadLeft += 1;
-                spreadDown = 0;
-                if(room.RoomShapeFeature()) floorNum3--;
-            }
-            TempWidth = mWidth / 2 - (float) (floorSize * spreadDown) - half_floorSize;
-            TempHeight = mHeight / 2 - (float) (floorSize * spreadLeft) - half_floorSize;
-            UnbreakableWalls.add(new UnbreakableWall(TempWidth, TempHeight, context));
-        }
-        spreadUp = 0; spreadDown = 0; spreadLeft = 0; spreadRight = 0;
-        for (int i = 3 * (int)roomSize / 4; i < 4 * roomSize / 4; i += 1) {
-            spreadUp++;
-            if (spreadUp >= floorNum4) {
-                spreadLeft += 1;
-                spreadUp = 0;
-                if(room.RoomShapeFeature()) floorNum4--;
-            }
-            TempWidth = mWidth / 2 + (float) (floorSize * spreadUp) - half_floorSize;
-            TempHeight = mHeight / 2 - (float) (floorSize * spreadLeft) - half_floorSize;
-            UnbreakableWalls.add(new UnbreakableWall(TempWidth, TempHeight, context));
+        // 下面是地板生成的代码
+        roomLimit = new RoomLimit(0.5f, 0.5f, 0.5f);
+        roomSize = roomLimit.RoomSizeFeature();
+
+        // 地板大小和一些基本的限制条件
+        int floorSize = 80, floorNum = 7;
+        // 中心地板的初始位置
+        float center_x = mWidth / 2 - floorSize / 2;
+        float center_y = mHeight / 2 - floorSize / 2;
+
+        UnbreakableWalls.add(new UnbreakableWall(center_x, center_y, context));
+        for (int i = 1; i <= 4; i++) {
+            addFloor(floorSize, center_x, center_y, floorNum, i);
         }
 
         translateX = 0;

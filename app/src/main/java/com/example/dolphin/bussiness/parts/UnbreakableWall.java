@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 
@@ -17,13 +16,13 @@ public class UnbreakableWall extends Wall {
 
     public UnbreakableWall(float x, float y, Context context) {
         super(x, y);
-        bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.box).copy(Bitmap.Config. ARGB_8888, true);
+        bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.box).copy(Bitmap.Config.ARGB_8888, true);
 
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
-        // 计算缩放比例
-        float scaleWidth = ((float) 160) / width;
-        float scaleHeight = ((float) 160) / height;
+
+        float scaleWidth = ((float) 80) / width;
+        float scaleHeight = ((float) 80) / height;
         // 取得想要缩放的matrix参数
         Matrix matrix = new Matrix();
         matrix.postScale(scaleWidth, scaleHeight);
@@ -42,6 +41,5 @@ public class UnbreakableWall extends Wall {
 
     @Override
     protected void onDraw(Canvas canvas) {
-
     }
 }
