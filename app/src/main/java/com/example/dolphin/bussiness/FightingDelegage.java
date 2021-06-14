@@ -518,7 +518,7 @@ public class FightingDelegage implements ITankHitHandler, IMissileHitHandler,
             enemyTank.setHitHandler(this);
         }
 
-        oursTank = new OursTank(mWidth / 2, mHeight / 2, mWidth, mHeight, Direction.LEFT);
+        oursTank = new OursTank(mWidth / 2, mHeight / 2, mWidth, mHeight, Direction.LEFT, context);
         oursTank.setHitHandler(this);
 
         // 下面是地板生成的代码
