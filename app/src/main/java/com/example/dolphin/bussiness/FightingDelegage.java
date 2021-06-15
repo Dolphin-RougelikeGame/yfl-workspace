@@ -20,7 +20,9 @@ import com.example.dolphin.view.SteeringWheelView;
 import java.util.ArrayDeque;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
+import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -41,8 +43,6 @@ public class FightingDelegage implements ITankHitHandler, IMissileHitHandler,
      * Room类随机生成房间的
      */
     private RoomLimit roomLimit;
-    private float roomSize;
-    private int roomShape;
     /**
      * 缓冲
      */
@@ -474,67 +474,133 @@ public class FightingDelegage implements ITankHitHandler, IMissileHitHandler,
         oursTank.fire();
     }
 
-    // 在四个不同的象限添加地板
-    public void addFloor(int floorSize, float center_x, float center_y, int floorNum, int direct) {
-        int spread_x = 0, spread_y = 0;
-        float TempWidth = center_x, TempHeight = center_y;
-        for (int i = 0; i < roomSize / 4; i += 1) {
-            spread_x++;
-            if (spread_x >= floorNum) {
-                spread_y += 1;
-                spread_x = 0;
-                if(roomLimit.RoomShapeFeature()) floorNum--;
-            }
-            switch (direct) {
-                case 1:
-                    TempWidth = center_x + (float) (floorSize * spread_x);
-                    TempHeight = center_y + (float) (floorSize * spread_y);
-                    break;
-                case 2:
-                    TempWidth = center_x - (float) (floorSize * spread_x);
-                    TempHeight = center_y + (float) (floorSize * spread_y);
-                    break;
-                case 3:
-                    TempWidth = center_x - (float) (floorSize * spread_x);
-                    TempHeight = center_y - (float) (floorSize * spread_y);
-                    break;
-                case 4:
-                    TempWidth = center_x + (float) (floorSize * spread_x);
-                    TempHeight = center_y - (float) (floorSize * spread_y);
-                default:
-                    break;
-            }
-            UnbreakableWalls.add(new UnbreakableWall(TempWidth, TempHeight, context));
+// 定义地图数组
+    private int[][] MapArray = new int[140][100];
+    private Random random = new Random();
+    private int turn = random.nextInt(4);
+    public void makeRoom(int roomX_init, int roomY_init, int roomX_len, int roomY_len, int init_x, int init_y) {
+        // 如果到了边界就停止扩展
+        if (init_x >= roomX_len - 1 + roomX_init || init_y >= roomY_len - 1 + roomY_init || init_x <= roomX_init || init_y <= roomY_init)
+            return;
+
+        if (roomLimit.RoomShapeFeature()) {
+            turn = (turn + 1) % 4;
         }
+        switch (turn) {
+            case 0:
+                MapArray[init_x + 1][init_y] = 1;
+                MapArray[init_x][init_y + 1] = 1;
+                MapArray[init_x - 1][init_y] = 1;
+                MapArray[init_x][init_y - 1] = 1;
+                makeRoom(roomX_init, roomY_init, roomX_len, roomY_len, init_x + 1, init_y);
+                break;
+            case 1:
+                MapArray[init_x + 1][init_y] = 1;
+                MapArray[init_x][init_y + 1] = 1;
+                MapArray[init_x - 1][init_y] = 1;
+                MapArray[init_x][init_y - 1] = 1;
+                makeRoom(roomX_init, roomY_init, roomX_len, roomY_len, init_x - 1, init_y);
+                break;
+            case 2:
+                MapArray[init_x + 1][init_y] = 1;
+                MapArray[init_x][init_y + 1] = 1;
+                MapArray[init_x - 1][init_y] = 1;
+                MapArray[init_x][init_y - 1] = 1;
+                makeRoom(roomX_init, roomY_init, roomX_len, roomY_len, init_x, init_y + 1);
+                break;
+            case 3:
+                MapArray[init_x + 1][init_y] = 1;
+                MapArray[init_x][init_y + 1] = 1;
+                MapArray[init_x - 1][init_y] = 1;
+                MapArray[init_x][init_y - 1] = 1;
+                makeRoom(roomX_init, roomY_init, roomX_len, roomY_len, init_x, init_y - 1);
+                break;
+            default:
+                break;
+        }
+
     }
 
     public void test() {
-        enemyTanks.add(new EnemyTank(1000, 1000, mWidth, mHeight, Direction.LEFT));
-        enemyTanks.add(new EnemyTank(1100, 1100, mWidth, mHeight, Direction.LEFT));
-        enemyTanks.add(new EnemyTank(mWidth - 100, 100, mWidth, mHeight, Direction.UP));
-        enemyTanks.add(new EnemyTank(mWidth - 1000, 1000, mWidth, mHeight, Direction.LEFT));
-
-        for (EnemyTank enemyTank : enemyTanks) {
-            enemyTank.setHitHandler(this);
-        }
-
-        oursTank = new OursTank(mWidth / 2, mHeight / 2, mWidth, mHeight, Direction.LEFT);
-        oursTank.setHitHandler(this);
-
-        // 下面是地板生成的代码
+        // 初始化roomLimit对象
         roomLimit = new RoomLimit(0.5f, 0.5f, 0.5f);
-        roomSize = roomLimit.RoomSizeFeature();
 
-        // 地板大小和一些基本的限制条件
-        int floorSize = 80, floorNum = 7;
-        // 中心地板的初始位置
-        float center_x = mWidth / 2 - floorSize / 2;
-        float center_y = mHeight / 2 - floorSize / 2;
+        // 初始化地图数组
+        for (int i = 0; i < 140; i++)
+            for (int j = 0; j < 100; j++)
+                MapArray[i][j] = 0;
 
-        UnbreakableWalls.add(new UnbreakableWall(center_x, center_y, context));
-        for (int i = 1; i <= 4; i++) {
-            addFloor(floorSize, center_x, center_y, floorNum, i);
+        // 地板大小、房间大小、初始位置设置为中心
+        int floorSize = 40;
+        int temp = roomLimit.RoomSizeFeature();
+
+        int roomX_1_init = 2;
+        int roomY_1_init = 2;
+        int roomY_1_len = temp;
+        int roomX_1_len = (int) (roomY_1_len * 1.4);
+
+        int init_x = roomX_1_init + (int) (roomX_1_len / 2);
+        int init_y = roomY_1_init + (int) (roomY_1_len / 2);
+        MapArray[init_x][init_y] = 1;
+
+        // 调用makeRoom制作地图
+        makeRoom(roomX_1_init, roomY_1_init, roomX_1_len, roomY_1_len, init_x, init_y);
+
+        // 制作房间1和2之间的通道
+        int passWay_X = roomX_1_init + roomX_1_len;
+        int passWay_Y = init_y;
+        int passLen = 10;
+        while (MapArray[passWay_X][passWay_Y] == 0) {
+            passWay_X--;
+            passLen++;
         }
+        for (int i = 0; i < passLen; i++) {
+            MapArray[passWay_X + i][passWay_Y] = 1;
+        }
+        // ↑↑ 房间通道制作完毕
+
+        // 房间2的开始
+        temp = roomLimit.RoomSizeFeature();
+        int roomY_2_len = temp;
+        int roomX_2_len = (int) (temp * 1.4);
+        int roomX_2_init = roomX_1_init + roomX_1_len + roomLimit.RoomRejectFeature();
+        int roomY_2_init = roomY_1_init;
+        init_x = roomX_2_init + roomX_2_len / 2;
+        init_y = roomY_2_init + roomY_2_len / 2;
+        MapArray[init_x][init_y] = 1;
+        makeRoom(roomX_2_init, roomY_2_init, roomX_2_len, roomY_2_len, init_x, init_y);
+        // 房间2结束
+
+        // 制作房间2和3之间的通道
+        passWay_X = init_x;
+        passWay_Y = roomY_2_init + roomY_2_len;
+        passLen = 10;
+        while (MapArray[passWay_X][passWay_Y] == 0) {
+            passWay_Y--;
+            passLen++;
+        }
+        for (int i = 0; i < passLen; i++) {
+            MapArray[passWay_X][passWay_Y + i] = 1;
+        }
+        // ↑↑ 房间通道制作完毕
+
+        // 房间3的开始
+        temp = roomLimit.RoomSizeFeature();
+        int roomY_3_len = temp;
+        int roomX_3_len = (int) (temp * 1.4);
+        int roomX_3_init = roomX_2_init;
+        int roomY_3_init = roomY_2_init + roomY_3_len + roomLimit.RoomRejectFeature();
+        init_x = roomX_3_init + roomX_3_len / 2;
+        init_y = roomY_3_init + roomY_3_len / 2;
+        MapArray[init_x][init_y] = 1;
+        makeRoom(roomX_3_init, roomY_3_init, roomX_3_len, roomY_3_len, init_x, init_y);
+        // 房间3的结束
+
+        // 将存在MapArray中的地图画出来
+        for (int i = 0; i < 140; i++)
+            for (int j = 0; j < 100; j++)
+                if (MapArray[i][j] == 1)
+                    UnbreakableWalls.add(new UnbreakableWall(floorSize * i, floorSize * j, context));
 
         translateX = 0;
         translateY = 0;

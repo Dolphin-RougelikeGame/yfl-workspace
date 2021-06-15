@@ -10,7 +10,7 @@ public class RoomLimit implements Shape {
     private float RoomSizeParam;
     private float RoomShapeParam;
     private float RoomRejectParam;
-    private float RoomSize;
+    private int RoomSize;
     private int RoomShape;
     private int RoomReject;
     private Random random = new Random();
@@ -21,29 +21,20 @@ public class RoomLimit implements Shape {
         this.RoomRejectParam = RoomRejectParam;
     }
 
-    public float RoomSizeFeature() {
-        int random1 = random.nextInt(38);
-        this.RoomSize = RoomSizeParam * (float) random1 + 70;
+    public int RoomSizeFeature() {
+        int random1 = random.nextInt(8);
+        this.RoomSize = (int) (RoomSizeParam * random1) + 12;
         return RoomSize;
-//        float RoomSize = 80f;
-//        return RoomSize;
     }
 
     public boolean RoomShapeFeature() {
         int random2 = random.nextInt(10);
-        // this.RoomShape = (int) (3 + (float) (random2) * RoomShapeParam);
-        if (random2 - 5 > 0) {
-            return false;
-        }
-        else {
-            return true;
-        }
-        // return RoomShape;
+        return random2 - 5 >= 0;
     }
 
     public int RoomRejectFeature() {
-        int random3 = random.nextInt(10);
-        this.RoomReject = (int) (RoomRejectParam * (float) random3) + 4;
+        int random3 = random.nextInt(4);
+        this.RoomReject = (int) (RoomRejectParam * (float) random3) + 2;
         return RoomReject;
     }
 
