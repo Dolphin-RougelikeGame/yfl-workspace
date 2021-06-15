@@ -1,11 +1,9 @@
 package com.example.dolphin.bussiness.parts;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.util.Log;
 
@@ -13,16 +11,17 @@ import com.example.dolphin.R;
 import com.example.dolphin.bussiness.Direction;
 import com.example.dolphin.bussiness.animation.FrameAnimation;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class OursTank extends Tank {
     private Paint oursPaint;
 
     // 状态：移动、攻击、死亡等，0为移动，其他还没写
-    int state;
 
-    FrameAnimation animation;
+    FrameAnimation moveAnimation;
+    FrameAnimation idleAnimation;
+
+    FrameAnimation currAnimation;
 
     public void initOursTank(Context context) {
         oursPaint = new Paint();
@@ -31,13 +30,17 @@ public class OursTank extends Tank {
         oursPaint.setStyle(Paint.Style.FILL_AND_STROKE);
         oursPaint.setColor(Color.GREEN);
 
-        animation = new FrameAnimation(WIDTH, HEIGHT);
-        animation.addFrame(BitmapFactory.decodeResource(context.getResources(), R.drawable.shark_move_1));
-        animation.addFrame(BitmapFactory.decodeResource(context.getResources(), R.drawable.shark_move_2));
-        animation.addFrame(BitmapFactory.decodeResource(context.getResources(), R.drawable.shark_move_3));
-        animation.addFrame(BitmapFactory.decodeResource(context.getResources(), R.drawable.shark_move_4));
+        moveAnimation = new FrameAnimation(WIDTH, HEIGHT, 3);
+        moveAnimation.addFrame(BitmapFactory.decodeResource(context.getResources(), R.drawable.shark_move_1));
+        moveAnimation.addFrame(BitmapFactory.decodeResource(context.getResources(), R.drawable.shark_move_2));
+        moveAnimation.addFrame(BitmapFactory.decodeResource(context.getResources(), R.drawable.shark_move_3));
+        moveAnimation.addFrame(BitmapFactory.decodeResource(context.getResources(), R.drawable.shark_move_4));
 
-        state = 0;
+        idleAnimation = new FrameAnimation(WIDTH, HEIGHT, 3);
+        idleAnimation.addFrame(BitmapFactory.decodeResource(context.getResources(), R.drawable.dolphin_idle_1));
+        idleAnimation.addFrame(BitmapFactory.decodeResource(context.getResources(), R.drawable.dolphin_idle_2));
+
+        setState(Tank.IDLE);
 
     }
 
@@ -47,12 +50,20 @@ public class OursTank extends Tank {
     }
 
     public void draw(Canvas canvas){
+        canvas.drawBitmap(currAnimation.nextFrame(), x, y, new Paint());
+    }
+
+    public void setState(int state){
+        this.state = state;
         switch (state){
-            case 0:
-                canvas.drawBitmap(animation.nextFrame(), x, y, new Paint());
+            case Tank.IDLE:
+                currAnimation = idleAnimation;
                 break;
-            default:break;
+            case Tank.MOVE:
+                currAnimation = moveAnimation;
+                break;
         }
+        currAnimation.resetAnimation();
     }
 
     @Override
@@ -87,43 +98,5 @@ public class OursTank extends Tank {
             move();
         }
     }
-
-//    class Animation{
-//        List<Bitmap> bitmapList;
-//
-//        //当前帧索引
-//        int frameIndex = 0;
-//
-//        //减速播放(多次循环共用一帧)
-//        int slowRate = 3;
-//
-//        Animation(Context context){
-//            bitmapList = new ArrayList<>();
-//            addBitmapToList(BitmapFactory.decodeResource(context.getResources(), R.drawable.shark_move_1));
-//            addBitmapToList(BitmapFactory.decodeResource(context.getResources(), R.drawable.shark_move_2));
-//            addBitmapToList(BitmapFactory.decodeResource(context.getResources(), R.drawable.shark_move_3));
-//            addBitmapToList(BitmapFactory.decodeResource(context.getResources(), R.drawable.shark_move_4));
-//        }
-//
-//        void addBitmapToList(Bitmap bitmap){
-//            int width = bitmap.getWidth();
-//            int height = bitmap.getHeight();
-//
-//            float scaleWidth = WIDTH / width;
-//            float scaleHeight = HEIGHT / height;
-//            // 取得想要缩放的matrix参数
-//            Matrix matrix = new Matrix();
-//            matrix.postScale(scaleWidth, scaleHeight);
-//            // 得到新的图片
-//            bitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);
-//
-//            bitmapList.add(bitmap);
-//        }
-//
-//        Bitmap nextFrame(){
-//            frameIndex = (frameIndex + 1) % (slowRate * bitmapList.size());
-//            return bitmapList.get(frameIndex / slowRate);
-//        }
-//    }
 
 }

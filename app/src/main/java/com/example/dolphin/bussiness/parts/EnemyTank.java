@@ -1,11 +1,15 @@
 package com.example.dolphin.bussiness.parts;
 
+import android.content.Context;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 
+import com.example.dolphin.R;
 import com.example.dolphin.bussiness.Direction;
+import com.example.dolphin.bussiness.animation.FrameAnimation;
 
 import java.util.List;
 import java.util.Random;
@@ -24,7 +28,15 @@ public class EnemyTank extends Tank {
 
     private int lifetime = ENEMYTANK_LIFETIME;
 
-    public void initEnemyTank() {
+    FrameAnimation idleAnimation;
+    FrameAnimation moveAnimation;
+    FrameAnimation attackAnimation;
+
+    FrameAnimation currAnimation;
+
+
+
+    public void initEnemyTank(Context context) {
         directionNum = Direction.values().length;
         random = new Random();
 
@@ -33,12 +45,61 @@ public class EnemyTank extends Tank {
         enemyPaint.setStyle(Paint.Style.FILL_AND_STROKE);
         enemyPaint.setColor(Color.RED);
 
+        idleAnimation = new FrameAnimation(WIDTH, HEIGHT, 3);
+        idleAnimation.addFrame(BitmapFactory.decodeResource(context.getResources(), R.drawable.frog_idle_1));
+        idleAnimation.addFrame(BitmapFactory.decodeResource(context.getResources(), R.drawable.frog_idle_2));
+
+        moveAnimation = new FrameAnimation(WIDTH, HEIGHT, 3);
+        moveAnimation.addFrame(BitmapFactory.decodeResource(context.getResources(), R.drawable.frog_move_1));
+        moveAnimation.addFrame(BitmapFactory.decodeResource(context.getResources(), R.drawable.frog_move_2));
+        moveAnimation.addFrame(BitmapFactory.decodeResource(context.getResources(), R.drawable.frog_move_3));
+        moveAnimation.addFrame(BitmapFactory.decodeResource(context.getResources(), R.drawable.frog_move_4));
+
+        attackAnimation = new FrameAnimation(WIDTH, HEIGHT, 3, false);
+        attackAnimation.addFrame(BitmapFactory.decodeResource(context.getResources(), R.drawable.frog_attack_1));
+        attackAnimation.addFrame(BitmapFactory.decodeResource(context.getResources(), R.drawable.frog_attack_2));
+        attackAnimation.addFrame(BitmapFactory.decodeResource(context.getResources(), R.drawable.frog_attack_3));
+
+        currAnimation = idleAnimation;
+
         changePostpone = 0;
     }
 
-    public EnemyTank(float x, float y, float actionScopeWidth, float actionScopeHeight, Direction direction) {
+    public EnemyTank(float x, float y, float actionScopeWidth, float actionScopeHeight, Direction direction, Context context) {
         super(x, y, actionScopeWidth, actionScopeHeight, direction);
-        initEnemyTank();
+        initEnemyTank(context);
+    }
+
+    void setState(int state){
+        this.state = state;
+        switch (state){
+            case EnemyTank.IDLE:
+                this.currAnimation = idleAnimation;
+                break;
+            case EnemyTank.MOVE:
+                this.currAnimation = moveAnimation;
+                this.stateCount = this.currAnimation.getSize();
+                break;
+            case EnemyTank.ATTACK:
+                this.currAnimation = attackAnimation;
+                this.stateCount = this.currAnimation.getSize();
+                break;
+        }
+    }
+
+    void updateState(){
+        if(stateCount > 0){
+            stateCount--;
+        }
+        else{
+            state = Tank.IDLE;
+        }
+    }
+
+    @Override
+    public void draw(Canvas canvas) {
+        canvas.drawBitmap(currAnimation.nextFrame(), x, y, new Paint());
+        updateState();
     }
 
     @Override
@@ -48,6 +109,7 @@ public class EnemyTank extends Tank {
 
     @Override
     protected void onFire(Missile missile) {
+        setState(EnemyTank.ATTACK);
         if (null != hitHandler) {
             hitHandler.onEnemyFire(missile);
         }
@@ -81,6 +143,9 @@ public class EnemyTank extends Tank {
         }
 
         move();
+        if(state != Tank.ATTACK){
+            setState(Tank.MOVE);
+        }
     }
 
     private boolean touchOursTank(OursTank oursTank) {

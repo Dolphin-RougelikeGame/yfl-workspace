@@ -3,6 +3,8 @@ package com.example.dolphin.bussiness.animation;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 
+import androidx.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,9 +18,34 @@ public class FrameAnimation {
 
     int slowRate = 1;
 
+    boolean isRepeat = false;
+
+    FrameAnimation defaultAnimation;
+
     public FrameAnimation(float width, float height){
         this.width = width;
         this.height = height;
+    }
+
+    public FrameAnimation(float width, float height, int slowRate){
+        this.width = width;
+        this.height = height;
+        this.slowRate = slowRate;
+    }
+
+    public FrameAnimation(float width, float height, int slowRate, boolean isRepeat){
+        this.width = width;
+        this.height = height;
+        this.slowRate = slowRate;
+        this.isRepeat = isRepeat;
+    }
+
+    public FrameAnimation(float width, float height, int slowRate, boolean isRepeat, FrameAnimation defaultAnimation){
+        this.width = width;
+        this.height = height;
+        this.slowRate = slowRate;
+        this.isRepeat = isRepeat;
+        this.defaultAnimation = defaultAnimation;
     }
 
     public void addFrame(Bitmap bitmap){
@@ -41,4 +68,11 @@ public class FrameAnimation {
         return bitmapList.get(curr / slowRate);
     }
 
+    public void resetAnimation(){
+        curr = 0;
+    }
+
+    public int getSize(){
+        return bitmapList.size();
+    }
 }

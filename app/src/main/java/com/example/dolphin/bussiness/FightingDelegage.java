@@ -2,16 +2,19 @@ package com.example.dolphin.bussiness;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.util.Log;
 
+import com.example.dolphin.R;
 import com.example.dolphin.bussiness.parts.EnemyTank;
 import com.example.dolphin.bussiness.parts.Explode;
 import com.example.dolphin.bussiness.parts.Missile;
 import com.example.dolphin.bussiness.parts.OursTank;
+import com.example.dolphin.bussiness.parts.Tank;
 import com.example.dolphin.bussiness.parts.UnbreakableWall;
 import com.example.dolphin.bussiness.parts.Wall;
 import com.example.dolphin.view.FireButton;
@@ -206,8 +209,6 @@ public class FightingDelegage implements ITankHitHandler, IMissileHitHandler,
                     e.printStackTrace();
                 }
             }
-
-            Log.i("zhoukai", "BufferDrawer: end");
         }
     }
 
@@ -281,6 +282,9 @@ public class FightingDelegage implements ITankHitHandler, IMissileHitHandler,
             while (mIsRunning) {
                 Message message = mq.poll();
                 if (null != message || isDriving) {
+                    if(oursTank.getState() != Tank.MOVE){
+                        oursTank.setState(Tank.MOVE);
+                    }
                     if (null != message) {
                         switch (message) {
                             case UP:
@@ -318,6 +322,9 @@ public class FightingDelegage implements ITankHitHandler, IMissileHitHandler,
                     }
 
                 } else {
+                    if(oursTank.getState() != Tank.IDLE){
+                        oursTank.setState(Tank.IDLE);
+                    }
                     try {
                         synchronized (driveLock) {
                             driveLock.wait();
@@ -522,6 +529,17 @@ public class FightingDelegage implements ITankHitHandler, IMissileHitHandler,
     }
 
     public void test() {
+        enemyTanks.add(new EnemyTank(1000, 1000, mWidth, mHeight, Direction.LEFT, context));
+        enemyTanks.add(new EnemyTank(1100, 1100, mWidth, mHeight, Direction.LEFT, context));
+        enemyTanks.add(new EnemyTank(mWidth - 100, 100, mWidth, mHeight, Direction.UP, context));
+        enemyTanks.add(new EnemyTank(mWidth - 1000, 1000, mWidth, mHeight, Direction.LEFT, context));
+
+        for (EnemyTank enemyTank : enemyTanks) {
+            enemyTank.setHitHandler(this);
+        }
+
+        oursTank = new OursTank(mWidth / 2, mHeight / 2, mWidth, mHeight, Direction.LEFT, context);
+        oursTank.setHitHandler(this);
         // 初始化roomLimit对象
         roomLimit = new RoomLimit(0.5f, 0.5f, 0.5f);
 

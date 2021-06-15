@@ -65,6 +65,13 @@ public abstract class Tank extends Movable implements Shape{
 
     protected ITankHitHandler hitHandler;
 
+
+    public static final int IDLE = 0;
+    public static final int MOVE = 1;
+    public static final int ATTACK = 2;
+    int state;
+    int stateCount;
+
     public void init() {
         speed = TANK_SPEED;
         path = new Path();
@@ -93,6 +100,10 @@ public abstract class Tank extends Movable implements Shape{
             point.y = (y + PADDING_UP + 5) + triStep * i;
             triPoints.add(point);
         }
+
+        state = Tank.IDLE;
+        stateCount = 0;
+
     }
 
     public Tank(float x, float y, float actionScopeWidth, float actionScopeHeight, Direction direction) {
@@ -130,6 +141,10 @@ public abstract class Tank extends Movable implements Shape{
         drawCannonTube(canvas);
 
         canvas.restore();
+    }
+
+    public int getState(){
+        return state;
     }
 
     private void drawTrack(Canvas canvas) {
